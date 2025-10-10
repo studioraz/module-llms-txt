@@ -1,0 +1,91 @@
+<?php
+/**
+ * @var $block \MageOS\LlmTxt\Block\Adminhtml\System\Config\GenerateButton
+ */
+?>
+<div class="llmtxt-generate-container">
+    <?= $block->getButtonHtml() ?>
+    <div id="llmtxt-generate-status" style="margin-top: 10px; display: none;">
+        <span class="message"></span>
+    </div>
+</div>
+
+<script>
+require([
+    'jquery',
+    'Magento_Ui/js/modal/alert',
+    'mage/translate',
+    'domReady!'
+], function ($, alert, $t) {
+    'use strict';
+
+    $('#llmtxt_generate_button').on('click', function () {
+        const button = $(this);
+        const statusDiv = $('#llmtxt-generate-status');
+        const statusMessage = statusDiv.find('.message');
+
+        // Disable button and show loading
+        button.prop('disabled', true).addClass('disabled');
+        statusDiv.show();
+        statusMessage.html('<span style="color: #007bdb;">⏳ Generating content with AI... This may take 10-30 seconds.</span>');
+
+        $.ajax({
+            url: '<?= $block->escapeJs($block->getAjaxUrl()) ?>',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                form_key: FORM_KEY,
+                store: '<?= (int) $block->getRequest()->getParam('store', 0) ?>'
+            },
+            success: function (response) {
+                if (response.success) {
+                    // Populate the generated_content textarea
+                    const contentField = $('[name="groups[content][fields][generated_content][value]"]');
+                    if (contentField.length) {
+                        contentField.val(response.content);
+                        contentField.trigger('change');
+                    }
+
+                    statusMessage.html(
+                        '<span style="color: #79a22e;">✓ ' + response.message + '</span>' +
+                        '<br><small>Review the generated content below and click "Save Config" to apply.</small>'
+                    );
+
+                    // Show success alert
+                    alert({
+                        title: $t('Success'),
+                        content: $t('LLM.txt content generated successfully with %1 tokens. Review and save when ready.').replace('%1', response.tokens)
+                    });
+                } else {
+                    statusMessage.html('<span style="color: #e02b27;">✗ ' + response.message + '</span>');
+                    alert({
+                        title: $t('Error'),
+                        content: response.error || response.message
+                    });
+                }
+            },
+            error: function (xhr, status, error) {
+                statusMessage.html('<span style="color: #e02b27;">✗ Request failed: ' + error + '</span>');
+                alert({
+                    title: $t('Error'),
+                    content: $t('Failed to connect to generation service. Please try again.')
+                });
+            },
+            complete: function () {
+                button.prop('disabled', false).removeClass('disabled');
+            }
+        });
+    });
+});
+</script>
+
+<style>
+    .llmtxt-generate-container {
+        padding: 10px 0;
+    }
+    #llmtxt-generate-status {
+        padding: 10px;
+        background: #f5f5f5;
+        border-left: 3px solid #007bdb;
+    }
+</style>

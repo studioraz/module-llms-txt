@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <llmtxt>
+            <general>
+                <enabled>0</enabled>
+                <cache_lifetime>86400</cache_lifetime>
+            </general>
+            <ai_generation>
+                <openai_model>gpt-4o-mini</openai_model>
+            </ai_generation>
+            <content>
+                <use_manual_content>0</use_manual_content>
+            </content>
+        </llmtxt>
+    </default>
+</config>
