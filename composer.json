@@ -1,5 +1,5 @@
 {
-    "name": "mage-os/module-llms-txt",
+    "name": "studiroaz/module-llms-txt",
     "description": "AI-powered LLM.txt generation for Magento 2 / Mage-OS stores. Help AI systems understand your store with OpenAI-generated content.",
     "type": "magento2-module",
     "license": "MIT",
